@@ -5,7 +5,6 @@ import requests
 from Crypto.Cipher import AES
 from Crypto.Hash import MD5
 
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
@@ -48,11 +47,7 @@ class LoginUtils(object):
         return None
 
     @staticmethod
-    def mock_login(username, password):
-        firefox_options = webdriver.FirefoxOptions()
-        firefox_options.headless = True
-        driver = webdriver.Remote(command_executor="http://127.0.0.1:4444/wd/hub", options=firefox_options)
-
+    def mock_login(driver, username, password):
         driver.get("https://toefl.neea.cn/login")
         wait = WebDriverWait(driver, 10)
         csrf_token = wait.until(ec.presence_of_element_located((By.NAME, "CSRFToken"))).get_attribute("value")
@@ -82,13 +77,8 @@ class LoginUtils(object):
         )
         driver.find_element_by_id("btnLogin").click()
 
-        name = wait.until(ec.presence_of_element_located((By.CLASS_NAME, "span9"))).text
-        print(name)
-
-        cookies = driver.get_cookies()
-        driver.quit()
-
-        return cookies
+        wait.until(ec.presence_of_element_located((By.CLASS_NAME, "span9")))
+        return driver.get_cookies()
 
 
 class CaptchaUtils(object):
